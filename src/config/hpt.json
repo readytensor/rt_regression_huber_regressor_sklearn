@@ -1,0 +1,21 @@
+{
+  "num_trials": 20,
+  "hyperparameters": [
+    {
+      "name": "alpha",
+      "short_desc": "Regularization strength; must be a positive float.",
+      "type": "float",
+      "search_type": "log-uniform",
+      "range_low": 1e-6,
+      "range_high": 1.0
+    },
+    {
+      "name": "epsilon",
+      "short_desc": "The parameter to control the threshold at which the loss function switches from quadratic to linear.",
+      "type": "float",
+      "search_type": "uniform",
+      "range_low": 1.0,
+      "range_high": 2.0
+    }
+  ]
+}

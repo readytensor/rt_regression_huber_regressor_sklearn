@@ -1,0 +1,33 @@
+{
+  "title": "Regression Smoke Test Dataset",
+  "description": "This smoke test dataset for regression task features a numeric attribute and a categorical attribute, along with intentional missing data, to simply verify model operability without gauging performance.\n\n\n\n",
+  "modelCategory": "regression",
+  "schemaVersion": 1.0,
+  "inputDataFormat": "CSV",
+  "encoding": "utf-8",
+  "id": {
+    "name": "id",
+    "description": "Unique identifier for sample"
+  },
+  "target": {
+    "name": "target",
+    "description": "Target variable",
+    "example": 176.7003
+  },
+  "features": [
+    {
+      "name": "number",
+      "description": "Synthetic numeric feature",
+      "dataType": "NUMERIC",
+      "example": 0.2075,
+      "nullable": true
+    },
+    {
+      "name": "color",
+      "description": "Synthetic categorical feature",
+      "dataType": "CATEGORICAL",
+      "categories": ["Blue", "Green", "Red"],
+      "nullable": true
+    }
+  ]
+}
