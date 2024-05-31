@@ -16,7 +16,7 @@ from preprocessing.preprocess import (
     transform_data,
 )
 from schema.data_schema import load_json_data_schema, save_schema
-from utils import read_csv_in_directory, read_json_as_dict, set_seeds, split_train_val
+from utils import read_csv_in_directory, read_json_as_dict, set_seeds, split_train_val, ResourceTracker
 
 logger = get_logger(task_name="train")
 
@@ -62,50 +62,51 @@ def run_training(
 
     try:
 
-        logger.info("Starting training...")
-        # load and save schema
-        logger.info("Loading and saving schema...")
-        data_schema = load_json_data_schema(input_schema_dir)
-        save_schema(schema=data_schema, save_dir_path=saved_schema_dir_path)
+        with ResourceTracker(logger, monitoring_interval=0.1):
+            logger.info("Starting training...")
+            # load and save schema
+            logger.info("Loading and saving schema...")
+            data_schema = load_json_data_schema(input_schema_dir)
+            save_schema(schema=data_schema, save_dir_path=saved_schema_dir_path)
 
-        # load model config
-        logger.info("Loading model config...")
-        model_config = read_json_as_dict(model_config_file_path)
+            # load model config
+            logger.info("Loading model config...")
+            model_config = read_json_as_dict(model_config_file_path)
 
-        # set seeds
-        logger.info("Setting seeds...")
-        set_seeds(seed_value=model_config["seed_value"])
+            # set seeds
+            logger.info("Setting seeds...")
+            set_seeds(seed_value=model_config["seed_value"])
 
-        # load train data
-        logger.info("Loading train data...")
-        train_data = read_csv_in_directory(file_dir_path=train_dir)
+            # load train data
+            logger.info("Loading train data...")
+            train_data = read_csv_in_directory(file_dir_path=train_dir)
 
-        # validate the data
-        logger.info("Validating train data...")
-        validated_data = validate_data(
-            data=train_data, data_schema=data_schema, is_train=True
-        )
+            # validate the data
+            logger.info("Validating train data...")
+            validated_data = validate_data(
+                data=train_data, data_schema=data_schema, is_train=True
+            )
 
-        # split train data into training and validation sets
-        logger.info("Performing train/validation split...")
-        train_split, val_split = split_train_val(
-            validated_data, val_pct=model_config["validation_split"]
-        )
+            # split train data into training and validation sets
+            logger.info("Performing train/validation split...")
+            train_split, val_split = split_train_val(
+                validated_data, val_pct=model_config["validation_split"]
+            )
 
-        logger.info("Loading preprocessing config...")
-        preprocessing_config = read_json_as_dict(preprocessing_config_file_path)
+            logger.info("Loading preprocessing config...")
+            preprocessing_config = read_json_as_dict(preprocessing_config_file_path)
 
-        # insert nulls in nullable features if no nulls exist in train data
-        logger.info("Inserting nulls in nullable features if not present...")
-        train_split_with_nulls = insert_nulls_in_nullable_features(
-            train_split, data_schema, preprocessing_config
-        )
+            # insert nulls in nullable features if no nulls exist in train data
+            logger.info("Inserting nulls in nullable features if not present...")
+            train_split_with_nulls = insert_nulls_in_nullable_features(
+                train_split, data_schema, preprocessing_config
+            )
 
-        # fit and transform using pipeline and target encoder, then save them
-        logger.info("Training preprocessing pipeline and label encoder...")
-        pipeline, target_encoder = train_pipeline_and_target_encoder(
-            data_schema, train_split_with_nulls, preprocessing_config
-        )
+            # fit and transform using pipeline and target encoder, then save them
+            logger.info("Training preprocessing pipeline and label encoder...")
+            pipeline, target_encoder = train_pipeline_and_target_encoder(
+                data_schema, train_split_with_nulls, preprocessing_config
+            )
         transformed_train_inputs, transformed_train_targets = transform_data(
             pipeline, target_encoder, train_split_with_nulls
         )
